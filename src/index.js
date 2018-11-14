@@ -1,7 +1,7 @@
 const path = require('path');
 const process = require('child_process');
 
-const scriptName = './netease-id.js';
+const scriptName = './soundcloud-id.js';
 
 // Run command
 let api = process.fork(path.join(__dirname, '../node_modules/NeteaseCloudMusicApi/app.js'), [], { silent: true });
