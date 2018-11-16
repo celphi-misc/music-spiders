@@ -15,45 +15,31 @@ const logFilename = path.join(__dirname, '../log/netease-id.log');
 fs.writeFileSync(logFilename, '');
 function writeLog(str) { fs.appendFileSync(logFilename, str + '\n'); }
 
-let songInfo = [];
-async function getSongInfo(index) {
-  let data = mdData[index];
+let songInfo = {};
+async function getSongInfo(data) {
   let searchString = `${data[2]} ${data[3]}`
     .replace(/\(.*\)/, '').replace('+', ' ').replace('  ', ' ');
+  
   await axios.get('/search', { params: { keywords: searchString } })
     .then(val => {
       try {
-        songInfo[index] = val.data.result.songs;
-        console.log(`${index}: ${val.data.result.songs[0].name} succeeded`);
+        songInfo[data[0]] = val.data.result.songs;
+        console.log(`${data[0]}: ${val.data.result.songs[0].name} succeeded`);
       } catch(err) {
-        console.error(`${index}: ${searchString} error: ${err}`);
-        writeLog(`${index}: ${searchString} error: ${err}`);
+        console.error(`${data[0]}: ${searchString} error: ${err}`);
+        writeLog(`${data[0]}: ${searchString} error: ${err}`);
       }
     })
     .catch(err => {
-      console.error(`${index}: ${searchString} error: ${err}`);
-      writeLog(`${index}: ${searchString} error: ${err}`);
+      console.error(`${data[0]}: ${searchString} error: ${err}`);
+      writeLog(`${data[0]}: ${searchString} error: ${err}`);
     });
 }
 
 async function getAllSong() {
-  for(let i in mdData) {
-    await getSongInfo(i);
+  for(let data of mdData) {
+    await getSongInfo(data);
   }
 }
 
-getAllSong().then(val => fs.writeFileSync(path.join(__dirname, '../data/songInfo.json'), JSON.stringify(songInfo)));
-
-// let promises = mdData.map(data => {
-//   let searchString = `${data[2]} ${data[3]}`
-//     .replace(/\(.*\)/, '').replace('+', ' ').replace('  ', ' ');
-//   return axios.get('/search', { params: { keywords: searchString } });
-// });
-
-// let ids = [];
-// Promise.all(promises)
-//   .then(responses => {
-//     ids = responses.map(res => res.data.result.songs);
-//     fs.writeFileSync(path.join(__dirname, '../data/songInfo.json'), JSON.stringify(ids));
-//   })
-//   .catch(reason => console.warn(reason));
+getAllSong().then(val => fs.writeFileSync(path.join(__dirname, '../data/search-result/netease.json'), JSON.stringify(songInfo)));
