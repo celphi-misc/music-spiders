@@ -1,19 +1,25 @@
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
-const proxyList = require('./evil/proxyList');
+
+var proxyList = require('./evil/proxyList').slice();
 
 // ==== Configurations ====
 // Step: Create new file by this number of songs
+var start = 1;
 var step = 1;
+var end = 1000;
 var maxTries = 50;
 // NetEase music API base URL
 axios.defaults.baseURL = 'http://localhost:3000';
 
-
 function getRandomProxy() {
   let index = Math.floor(Math.random() * proxyList.length);
   return 'http://' + proxyList[index];
+}
+function removeFromProxies(str) {
+  let index = proxyList.indexOf(str.replace('http://', ''));
+  if(index > 0) proxyList.splice(index, 1);
 }
 
 // Meta
@@ -34,20 +40,22 @@ async function getComments(id) {
   var proxy;
   for(var i = 0; i < maxTries; i++) {
     try {
-      proxy = getRandomProxy(); 
+      proxy = getRandomProxy();
       var res = await axios.get('/comment/music', { params: { id, limit: 20, offset: 0, proxy } });
       break;
     } catch(err) {
       writeLog(`${new Date()}\tCannot get NE id ${id} from ${proxy}`);
+      removeFromProxies(proxy);
     }
   }
   if(i == maxTries) {
     writeLog(`${new Date()}\tFAILURE: Max tries exceeded for NE id ${id}`);
+    removeFromProxies(proxy);
     return [];
   }
   let data = res.data;
   let count = data.total;
-  console.log(`Song ${id}: ${count} comments`);
+  console.log(`Song ${id}: ${count} comments, ${proxyList.length} proxies left`);
   comments = data.comments.splice();
 
   for(let i = 1; i * 20 < count; i ++) {
@@ -64,6 +72,7 @@ async function getComments(id) {
         else throw Error();
       } catch(err) {
         writeLog(`${new Date()}\tCannot get NE id ${id} from ${proxy}`);
+        removeFromProxies(proxy);
       }
     }
     if(j == maxTries) writeLog(`${new Date()}\tFAILURE: Max tries exceeded for NE id ${id}`);
@@ -74,10 +83,12 @@ async function getComments(id) {
 (async function() {
   let buffer = {};
   let count = 0;
-  for(let id in meta) {
+  let it = Object.keys(meta).filter(key => Number.parseInt(key) >= start && Number.parseInt(key) <= end);
+  
+  for(let id of it) {
     let song = meta[id];
     let comments = await getComments(song.neteaseId);
-    console.log(`${Math.ceil(Number.parseInt(id)/10)}%`);
+    console.log(`\r${Math.ceil(Number.parseInt(id)/10)}% of all completed.`);
     buffer[id] = comments;
     count++;
     if(count >= step) {
@@ -86,7 +97,7 @@ async function getComments(id) {
       fs.writeFileSync(path.join(__dirname, `../data/comments/netease/${outFilename}`), JSON.stringify(buffer));
       count = 0;
       buffer = {};
-      // await new Promise(resolve => setTimeout(resolve, 5000));
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
   }
   return buffer;
