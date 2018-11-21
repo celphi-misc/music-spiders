@@ -43,6 +43,7 @@ async function getComments(id) {
       fs.writeFileSync(path.join(__dirname, `../data/comments/netease/${count}.json`), JSON.stringify(buffer));
       count = 0;
       buffer = {};
+      await new Promise(resolve => setTimeout(resolve, 5000));
     }
   }
   return buffer;
