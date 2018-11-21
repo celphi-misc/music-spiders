@@ -5,7 +5,7 @@ const proxyList = require('./evil/proxyList');
 
 // ==== Configurations ====
 // Step: Create new file by this number of songs
-var step = 10;
+var step = 1;
 var maxTries = 50;
 // NetEase music API base URL
 axios.defaults.baseURL = 'http://localhost:3000';
@@ -58,6 +58,7 @@ async function getComments(id) {
           id, limit: 20, offset: i, proxy } });
         if(res.data.comments) {
           res.data.comments.forEach(comment => comments.push(comment));
+          process.stdout.write(`\r${Math.ceil(i*20/count*100)}%`);
           break;
         }
         else throw Error();
@@ -85,7 +86,7 @@ async function getComments(id) {
       fs.writeFileSync(path.join(__dirname, `../data/comments/netease/${outFilename}`), JSON.stringify(buffer));
       count = 0;
       buffer = {};
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      // await new Promise(resolve => setTimeout(resolve, 5000));
     }
   }
   return buffer;
