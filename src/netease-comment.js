@@ -15,7 +15,7 @@ async function getComments(id) {
   var comments = [];
   let res = await axios.get('/comment/music', { params: { id, limit: 20, offset: 0 } });
   let data = res.data;
-  let count = res.total;
+  let count = data.total;
   console.log(`Song ${id}: ${count} comments`);
   comments = data.comments.splice();
   await (async function () {
@@ -24,22 +24,26 @@ async function getComments(id) {
         id, limit: 20, offset: i } })
           .then(res => {
             res.data.comments.forEach(comment => comments.push(comment));
-          })
+          }).catch(err => console.err);
     }
   })();
   return comments;
 }
 
-
 (async function() {
-  let result = {};
+  let buffer = {};
+  let count = 0;
   for(let id in meta) {
     let song = meta[id];
     let comments = await getComments(song.neteaseId);
-    // console.log(`${Math.ceil(Number.parseInt(id)/10)}%`);
-    result[id] = comments;
+    console.log(`${Math.ceil(Number.parseInt(id)/10)}%`);
+    buffer[id] = comments;
+    count++;
+    if(count >= 20) {
+      fs.writeFileSync(path.join(__dirname, `../data/comments/netease/${count}.json`), JSON.stringify(buffer));
+      count = 0;
+      buffer = {};
+    }
   }
-  return result;
-})().then(data => {
-  fs.writeFileSync(path.join(__dirname, '../data/comments/netease-comments.json'), JSON.stringify(data));
-});
+  return buffer;
+})();

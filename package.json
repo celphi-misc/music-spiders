@@ -18,7 +18,7 @@
   },
   "homepage": "https://github.com/celphi-misc/music-spiders#readme",
   "devDependencies": {
-    "NeteaseCloudMusicApi": "^3.0.5",
+    "NeteaseCloudMusicApi": "^3.0.6",
     "axios": "^0.18.0"
   }
 }
