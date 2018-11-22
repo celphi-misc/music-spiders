@@ -4,7 +4,7 @@ const axios = require('axios');
 
 // ==== Configurations ====
 // Step: Create new file by this number of songs
-var start = 17;
+var start = 21;
 var step = 1;
 var end = 1000;
 var maxTries = 50;
@@ -49,7 +49,7 @@ async function getComments(id) {
   for(var i = 0; i < maxTries; i++) {
     try {
       proxy = await getRandomProxy();
-      var res = await axios.get('/comment/music', { params: { id, limit: 20, offset: 0, proxy } });
+      var res = await axios.get('/comment/music', { params: { id, limit: 100, offset: 0, proxy } });
       break;
     } catch(err) {
       writeLog(`${new Date()}\tCannot get NE id ${id} from ${proxy}`);
@@ -66,15 +66,15 @@ async function getComments(id) {
   console.log(`Song ${id}: ${count} comments, ${proxyList.length} proxies left`);
   comments = data.comments.splice();
 
-  for(let i = 1; i * 20 < count; i ++) {
+  for(let i = 1; i * 100 < count; i ++) {
     for(var j = 0; j < maxTries; j++) {
       try {
         proxy = await getRandomProxy();
         let res = await axios.get('/comment/music', { params: {
-          id, limit: 20, offset: i, proxy } });
+          id, limit: 100, offset: i, proxy } });
         if(res.data.comments) {
           res.data.comments.forEach(comment => comments.push(comment));
-          process.stdout.write(`\r${Math.ceil(i*20/count*100)}%`);
+          process.stdout.write(`\r${Math.ceil(i/count)}%`);
           break;
         }
         else throw Error();
