@@ -4,7 +4,7 @@ const axios = require('axios');
 
 // ==== Configurations ====
 // Step: Create new file by this number of songs
-var start = 5;
+var start = 17;
 var step = 1;
 var end = 1000;
 var maxTries = 50;
