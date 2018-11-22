@@ -27,7 +27,7 @@ async function getRandomProxy() {
 }
 function removeFromProxies(str) {
   let index = proxyList.indexOf(str.replace('http://', ''));
-  if(index > 0) proxyList.splice(index, 1);
+  if(index >= 0) proxyList.splice(index, 1);
 }
 
 // Meta
