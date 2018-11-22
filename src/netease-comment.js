@@ -74,7 +74,7 @@ async function getComments(id) {
           id, limit: 100, offset: i, proxy } });
         if(res.data.comments) {
           res.data.comments.forEach(comment => comments.push(comment));
-          process.stdout.write(`\r${Math.ceil(i/count)}%`);
+          process.stdout.write(`\r${Math.ceil(i*10000/count)}%`);
           break;
         }
         else throw Error();
