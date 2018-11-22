@@ -2,18 +2,25 @@ const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 
-var proxyList = require('./evil/proxyList').slice();
-
 // ==== Configurations ====
 // Step: Create new file by this number of songs
 var start = 1;
 var step = 1;
 var end = 1000;
 var maxTries = 50;
+var proxyList = [];
 // NetEase music API base URL
 axios.defaults.baseURL = 'http://localhost:3000';
 
-function getRandomProxy() {
+async function getRandomProxy() {
+  if(!proxyList.length) {
+    try {
+      let res = await axios.get('http://webapi.http.zhimacangku.com/getip?num=20&type=1&pro=&city=0&yys=0&port=1&time=1&ts=0&ys=0&cs=0&lb=4&sb=0&pb=45&mr=1&regions=');
+      proxyList = res.data.split('\n').filter(str => str !== '');
+    } catch(err) {
+      console.log(`${new Date()}\tFAILURE: Proxy request failed`)
+    }
+  }
   let index = Math.floor(Math.random() * proxyList.length);
   return 'http://' + proxyList[index];
 }
@@ -40,7 +47,7 @@ async function getComments(id) {
   var proxy;
   for(var i = 0; i < maxTries; i++) {
     try {
-      proxy = getRandomProxy();
+      proxy = await getRandomProxy();
       var res = await axios.get('/comment/music', { params: { id, limit: 20, offset: 0, proxy } });
       break;
     } catch(err) {
@@ -61,7 +68,7 @@ async function getComments(id) {
   for(let i = 1; i * 20 < count; i ++) {
     for(var j = 0; j < maxTries; j++) {
       try {
-        proxy = getRandomProxy();
+        proxy = await getRandomProxy();
         let res = await axios.get('/comment/music', { params: {
           id, limit: 20, offset: i, proxy } });
         if(res.data.comments) {
