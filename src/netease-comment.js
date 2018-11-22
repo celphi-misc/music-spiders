@@ -4,7 +4,7 @@ const axios = require('axios');
 
 // ==== Configurations ====
 // Step: Create new file by this number of songs
-var start = 1;
+var start = 5;
 var step = 1;
 var end = 1000;
 var maxTries = 50;
@@ -17,8 +17,9 @@ async function getRandomProxy() {
     try {
       let res = await axios.get('http://webapi.http.zhimacangku.com/getip?num=20&type=1&pro=&city=0&yys=0&port=1&time=1&ts=0&ys=0&cs=0&lb=4&sb=0&pb=45&mr=1&regions=');
       proxyList = res.data.split('\n').filter(str => str !== '');
+      console.log(`New proxies got.`)
     } catch(err) {
-      console.log(`${new Date()}\tFAILURE: Proxy request failed`)
+      console.log(`${new Date()}\tFAILURE: Proxy request failed`);
     }
   }
   let index = Math.floor(Math.random() * proxyList.length);
@@ -104,7 +105,7 @@ async function getComments(id) {
       fs.writeFileSync(path.join(__dirname, `../data/comments/netease/${outFilename}`), JSON.stringify(buffer));
       count = 0;
       buffer = {};
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // await new Promise(resolve => setTimeout(resolve, 1000));
     }
   }
   return buffer;
