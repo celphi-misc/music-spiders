@@ -31,7 +31,7 @@ function removeFromProxies(str) {
 }
 
 // Meta
-var meta = fs.readFileSync(path.join(__dirname, '../data/meta/meta-verified.json'), 'utf8');
+var meta = fs.readFileSync(path.join(__dirname, '../data/meta/meta.json'), 'utf8');
 meta = JSON.parse(meta);
 
 // Clear log

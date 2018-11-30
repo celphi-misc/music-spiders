@@ -28,4 +28,4 @@ for(let i in meta) {
   }
 }
 
-fs.writeFileSync(path.join(__dirname, '../data/meta/meta-verified.json'), JSON.stringify(result));
+fs.writeFileSync(path.join(__dirname, '../data/meta/meta.json'), JSON.stringify(result));
